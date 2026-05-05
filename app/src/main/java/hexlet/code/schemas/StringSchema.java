@@ -5,17 +5,17 @@ public class StringSchema {
     private String sub = null;
     private Integer minLength = null;
 
-    public StringSchema required() {
+    public StringSchema required() { /* TODO document why this method is empty */
         required = true;
         return this;
     }
 
-    public StringSchema minLength(int length) {
+    public StringSchema minLength(int length) { /* TODO document why this method is empty */
         minLength = length;
         return this;
     }
 
-    public StringSchema contains(String substring) {
+    public StringSchema contains(String substring) { /* TODO document why this method is empty */
         sub = substring;
         return this;
     }
