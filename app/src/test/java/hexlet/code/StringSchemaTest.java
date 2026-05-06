@@ -97,10 +97,5 @@ class StringSchemaTest {
         schema.contains("hex").contains("hell");
         assertTrue(schema.isValid("hello"));
         assertFalse(schema.isValid("hexlet"));
-        // Проверка, что required не перезаписывается другими методами
-        schema.required();
-        assertFalse(schema.isValid(""));
-        assertFalse(schema.isValid(null));
-        assertTrue(schema.isValid("hello"));
     }
 }

@@ -8,15 +8,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Тестирование схемы валидации чисел.
- */
 class NumberSchemaTest {
 
     /**
      * Поле содержит объект класса валидатора.
      */
     private Validator validator;
+
     /**
      * Поле содержит объект схемы валидации чисел.
      */
@@ -26,26 +24,31 @@ class NumberSchemaTest {
      * Поле содержит минимальное значение для диапазона.
      */
     private final int minRange = 5;
+
     /**
      * Поле содержит максимальное значение для диапазона.
      */
     private final int maxRange = 10;
+
     /**
      * Поле содержит значение меньше минимального.
      */
     private final int belowMin = 4;
+
     /**
      * Поле содержит значение больше максимального.
      */
     private final int aboveMax = 11;
+
     /**
-     * Поле содержит положительное число для проверки.
+     * Поле содержит отрицательное значение.
      */
-    private final int positiveNumber = 5;
+    private final int negativeValue = -5;
+
     /**
-     * Поле содержит отрицательное число для проверки.
+     * Поле содержит положительное значение.
      */
-    private final int negativeNumber = -5;
+    private final int positiveValue = 5;
 
     @BeforeEach
     void init() {
@@ -54,60 +57,72 @@ class NumberSchemaTest {
     }
 
     @Test
-    @DisplayName("без вызова required null проходит валидацию")
-    void testWithoutRequired() {
-        assertTrue(schema.isValid(positiveNumber));
-        assertTrue(schema.isValid(null));
-    }
-
-    @Test
-    @DisplayName("проверка положительного числа")
+    @DisplayName("проверка установки положительного числа")
     void testPositive() {
+        //до установки positive
+        assertTrue(schema.isValid(negativeValue));
+        assertTrue(schema.isValid(0));
+        assertTrue(schema.isValid(positiveValue));
+        //после установки positive
         schema.positive();
         assertTrue(schema.isValid(null));
-        assertFalse(schema.isValid(negativeNumber));
+        assertFalse(schema.isValid(negativeValue));
         assertFalse(schema.isValid(0));
-        assertTrue(schema.isValid(positiveNumber));
+        assertTrue(schema.isValid(positiveValue));
     }
 
     @Test
     @DisplayName("проверка установки обязательности ввода")
     void testRequired() {
+        //до установки required
+        assertTrue(schema.isValid(null));
+        assertTrue(schema.isValid(positiveValue));
+        //после установки required
         schema.required();
         assertFalse(schema.isValid(null));
-        assertTrue(schema.isValid(maxRange));
-        // positive ещё не включён, отрицательное число проходит
-        assertTrue(schema.isValid(negativeNumber));
+        assertTrue(schema.isValid(positiveValue));
     }
 
     @Test
-    @DisplayName("проверка обязательности и положительности")
-    void testRequiredAndPositive() {
-        schema.required().positive();
-        assertFalse(schema.isValid(null));
-        assertFalse(schema.isValid(negativeNumber));
-        assertFalse(schema.isValid(0));
-        assertTrue(schema.isValid(maxRange));
-    }
-
-    @Test
-    @DisplayName("проверка диапазона значений")
+    @DisplayName("проверка установки диапазона")
     void testRange() {
-        schema.range(minRange, maxRange);
+        //до установки диапазона
+        assertTrue(schema.isValid(belowMin));
         assertTrue(schema.isValid(minRange));
         assertTrue(schema.isValid(maxRange));
+        assertTrue(schema.isValid(aboveMax));
+        // после установки диапазона
+        schema.range(minRange, maxRange);
         assertFalse(schema.isValid(belowMin));
+        assertTrue(schema.isValid(minRange));
+        assertTrue(schema.isValid(maxRange));
         assertFalse(schema.isValid(aboveMax));
-        // null проходит, так как required не вызывался
-        assertTrue(schema.isValid(null));
     }
 
     @Test
-    @DisplayName("проверка обязательности, диапазона и положительности")
-    void testRequiredRangeAndPositive() {
+    @DisplayName("проверка текучести вызовов")
+    void testMultiSet() {
+        //до установки всех параметров схемы
+        assertTrue(schema.isValid(null));
+        assertTrue(schema.isValid(negativeValue));
+        assertTrue(schema.isValid(0));
+        assertTrue(schema.isValid(positiveValue));
+        //после установки всех параметров
         schema.required().positive().range(minRange, maxRange);
         assertFalse(schema.isValid(null));
+        assertFalse(schema.isValid(negativeValue));
         assertFalse(schema.isValid(0));
+        assertFalse(schema.isValid(belowMin));
+        assertFalse(schema.isValid(aboveMax));
+        assertTrue(schema.isValid(minRange));
+        assertTrue(schema.isValid(maxRange));
+    }
+
+    @Test
+    @DisplayName("проверка перезаписи параметров схемы")
+    void testOverwrites() {
+        // Проверка перезаписи range
+        schema.range(belowMin, aboveMax).range(minRange, maxRange);
         assertFalse(schema.isValid(belowMin));
         assertFalse(schema.isValid(aboveMax));
         assertTrue(schema.isValid(minRange));
