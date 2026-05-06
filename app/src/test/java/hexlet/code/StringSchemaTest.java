@@ -2,116 +2,105 @@ package hexlet.code;
 
 import hexlet.code.schemas.StringSchema;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StringSchemaTest {
-
+    /**
+     * Поле содержит объект класса валидатора.
+     */
     private Validator v;
+    /**
+     * Поле содержит объект схемы валидации строк.
+     */
+    private StringSchema schema;
+    /**
+     * Поле содержит число-ограничение минимальной длины строки.
+     */
+    private final int minLength = 10;
+    /**
+     * Поле содержит число-ограничение минимальной длины строки.
+     */
+    private final int minOverwrite = 4;
 
     @BeforeEach
     void init() {
         v = new Validator();
+        schema = v.string();
     }
 
     @Test
+    @DisplayName("проверка установки обязательности ввода")
     void testRequired() {
-        StringSchema schema = v.string();
-
-        // По умолчанию null и пустая строка проходят
+        //до установки required ввод не обязателен
         assertTrue(schema.isValid(null));
         assertTrue(schema.isValid(""));
-        assertTrue(schema.isValid("any text"));
-
+        assertTrue(schema.isValid("Hello, неxlet!"));
+        //после вызова required данные не должны быть пустыми.
         schema.required();
-
         assertFalse(schema.isValid(null));
         assertFalse(schema.isValid(""));
-        assertTrue(schema.isValid("any text"));
+        assertTrue(schema.isValid("hello, hexlet!"));
     }
 
     @Test
+    @DisplayName("проверка установки минимальной длины")
     void testMinLength() {
-        StringSchema schema = v.string().minLength(5);
-
-        // null и пустая строка проходят (required == false)
-        assertTrue(schema.isValid(null));
-        assertTrue(schema.isValid(""));
-        // строка короче 5 не проходит
-        assertFalse(schema.isValid("1234"));
-        assertTrue(schema.isValid("12345"));
-        assertTrue(schema.isValid("123456"));
+        //до установки ограничения длины
+        assertTrue(schema.isValid("hello"));
+        assertTrue(schema.isValid("hello, hexlet"));
+        //после установки ограничения длины
+        schema.minLength(minLength);
+        assertFalse(schema.isValid("hello"));
+        assertTrue(schema.isValid("hello, hexlet"));
     }
 
     @Test
+    @DisplayName("проверка на вхождение подстроки")
     void testContains() {
-        StringSchema schema = v.string().contains("fox");
-
-        assertTrue(schema.isValid(null));
-        assertTrue(schema.isValid(""));
-        assertTrue(schema.isValid("what does the fox say"));
-        assertFalse(schema.isValid("what does the cat say"));
+        //до установки подстроки
+        assertTrue(schema.isValid("hello"));
+        assertTrue(schema.isValid("hexlet"));
+        //после установки подстроки
+        schema.contains("hex");
+        assertFalse(schema.isValid("hello"));
+        assertTrue(schema.isValid("hexlet"));
     }
 
     @Test
-    void testRequiredAndMinLengthAndContains() {
-        StringSchema schema = v.string()
-                .required()
-                .minLength(5)
-                .contains("hex");
-
-        // null и пустая строка не проходят из-за required
+    @DisplayName("проверка текучести вызовов")
+    void testMultiSet() {
+        //до установки всех параметров схемы
+        assertTrue(schema.isValid(null));
+        assertTrue(schema.isValid(""));
+        assertTrue(schema.isValid("Hello!"));
+        assertTrue(schema.isValid("Hello, неxlet!"));
+        //после установки всех параметров
+        schema.required().minLength(minLength).contains("hex");
         assertFalse(schema.isValid(null));
         assertFalse(schema.isValid(""));
-        // длина меньше 5
-        assertFalse(schema.isValid("hex"));
-        // длина достаточная, но нет подстроки
-        assertTrue(schema.isValid("hexlet"));
-        assertTrue(schema.isValid("hexlet"));
+        assertFalse(schema.isValid("Hello!"));
+        assertTrue(schema.isValid("Hello, hexlet!"));
     }
 
     @Test
-    void testChainingOverwrites() {
-        // Проверка, что последний вызов contains перетирает предыдущий
-        StringSchema schema = v.string();
-        schema.contains("wh").contains("what");
-        assertTrue(schema.isValid("what does the fox say"));
-        assertFalse(schema.isValid("wh does the fox say"));
-
-        // Аналогично для minLength
-        schema.minLength(10).minLength(4).contains(null);
+    @DisplayName("проверка перезаписи параметров схемы")
+    void testOverwrites() {
+        // Проверка перезаписи minLength
+        schema.minLength(minLength).minLength(minOverwrite);
         assertTrue(schema.isValid("Hexlet"));
         assertFalse(schema.isValid("Hi"));
-    }
-
-    @Test
-    void testIsValidWithOnlyRequired() {
-        StringSchema schema = v.string().required();
-        assertFalse(schema.isValid(null));
-        assertFalse(schema.isValid(""));
+        // Проверка перезаписи contains
+        schema.contains("hex").contains("hell");
         assertTrue(schema.isValid("hello"));
-    }
-
-    @Test
-    void testMultipleRulesFromExample() {
-        StringSchema schema = v.string();
-        // пока не вызван required
-        assertTrue(schema.isValid(""));
-        assertTrue(schema.isValid(null));
-
+        assertFalse(schema.isValid("hexlet"));
+        // Проверка, что required не перезаписывается другими методами
         schema.required();
-        assertFalse(schema.isValid(null));
         assertFalse(schema.isValid(""));
-        assertTrue(schema.isValid("what does the fox say"));
-        assertTrue(schema.isValid("hexlet"));
-
-        // проверка contains
-        assertTrue(schema.contains("wh").isValid("what does the fox say"));
-        assertTrue(schema.contains("what").isValid("what does the fox say"));
-        assertFalse(schema.contains("whatthe").isValid("what does the fox say"));
-
-        // после добавления contains("whatthe") isValid вернёт false для той же строки
-        assertFalse(schema.isValid("what does the fox say"));
+        assertFalse(schema.isValid(null));
+        assertTrue(schema.isValid("hello"));
     }
 }

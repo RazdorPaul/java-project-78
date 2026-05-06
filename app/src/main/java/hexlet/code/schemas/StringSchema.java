@@ -1,32 +1,58 @@
 package hexlet.code.schemas;
 
-public class StringSchema {
-    private boolean required = false;
+public class StringSchema extends BaseSchema<String> {
+    /**
+     * Поле содержит подстроку.
+     */
     private String sub = null;
+    /**
+     * Поле содержит минимальную длину строки.
+     */
     private Integer minLength = null;
 
-    public StringSchema required() { /* TODO document why this method is empty */
-        required = true;
+    /**
+     * Метод добавляет проверку на пустоту и null в переданной строке.
+     * @return возвращает настроенную схему валидации
+     */
+    @Override
+    public StringSchema required() {
+        super.required();
         return this;
     }
 
-    public StringSchema minLength(int length) { /* TODO document why this method is empty */
+    /**
+     * Метод добавляет проверку на минимальную длину переданной строки.
+     * @param length - минимальная длина
+     * @return возвращает настроенную схему валидации
+     */
+    public StringSchema minLength(final int length) {
         minLength = length;
         return this;
     }
 
-    public StringSchema contains(String substring) { /* TODO document why this method is empty */
+    /**
+     * Добавление проверки на вхождение подстроки.
+     * @param substring - подстрока, которая должна входить
+     * в переданную методу строку
+     * @return возвращает настроенную схему валидации
+     */
+    public StringSchema contains(final String substring) {
         sub = substring;
         return this;
     }
 
-    public boolean isValid(String data) {
-        System.out.println("DEBUG: data=" + data + ", required=" + required + ", minLength=" + minLength + ", sub=" + sub);
-        if (!required && (data == null || data.isEmpty())) {
+    /**
+     * Метод проверяет валидность переданных данных.
+     * @param data передаваемые методу данные
+     * @return возвращает, пройдена или нет проверка
+     */
+    @Override
+    public boolean isValidNotNull(final String data) {
+        if (data.isEmpty()) {
+            if (super.getRequired()) {
+                return false;
+            }
             return true;
-        }
-        if (required && (data == null || data.isEmpty())) {
-            return false;
         }
         if (minLength != null && data.length() < minLength) {
             return false;
