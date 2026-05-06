@@ -17,10 +17,6 @@ repositories {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    implementation ("info.picocli:picocli:4.7.7")
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.21.1"))
-    implementation ("com.fasterxml.jackson.core:jackson-databind")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
 }
 
 tasks.test {
@@ -58,7 +54,7 @@ tasks.jacocoTestReport {
 
     classDirectories.setFrom(
         sourceSets.main.get().output.asFileTree.matching {
-            //exclude("**/App.class")  // исключаем main класс если нужно
+            exclude("**/App.class")  // исключаем main класс если нужно
         }
     )
 }
