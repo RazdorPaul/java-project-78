@@ -33,6 +33,21 @@ public abstract class BaseSchema<T> {
     }
 
     /**
+     * Метод проверяет валидность значения произвольного типа.
+     * @param data содержит объект проверки
+     * @return возвращает, прошел ли объект проверку
+     */
+    public boolean isValidData(final Object data) {
+        try {
+            @SuppressWarnings("unchecked")
+            T casted = (T) data;
+            return isValid(casted);
+        } catch (ClassCastException e) {
+            return false;
+        }
+    }
+
+    /**
      * Геттер для получения доступа к полю.
      * @return возвращает значение поля
      */
