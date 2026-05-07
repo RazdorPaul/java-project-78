@@ -51,4 +51,19 @@ public class MapSchema extends BaseSchema<Map<String, Object>> {
         });
         return this;
     }
+
+    /**
+     * Проверяет валидность карты, принимая любой тип карты.
+     * Этот метод необходим для совместимости с тестами,
+     * передающими Map<String, String>.
+     * @param map карта для проверки (может быть null)
+     * @return true, если карта проходит все проверки схемы, иначе false
+     */
+    @SuppressWarnings("unchecked")
+    public boolean isValid(final Map<?, ?> map) {
+        if (map == null) {
+            return isValid((Map<String, Object>) null);
+        }
+        return isValid((Map<String, Object>) map);
+    }
 }
