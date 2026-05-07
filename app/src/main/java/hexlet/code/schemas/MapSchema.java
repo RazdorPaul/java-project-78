@@ -33,8 +33,8 @@ public class MapSchema extends BaseSchema<Map<String, Object>> {
      * @param rules содержит карту правил валидации
      * @return возвращает настроенную схему валидации
      */
-    public MapSchema shape(final Map<String, BaseSchema<?>> rules) {
-        this.shapeSchemas = rules;
+    public MapSchema shape(final Map<String, ? extends BaseSchema<?>> rules) {
+        this.shapeSchemas = (Map<String, BaseSchema<?>>) rules;
         addRule("shape", map -> {
             if (map == null) {
                 return true;
