@@ -1,22 +1,13 @@
 package hexlet.code.schemas;
 
 public class StringSchema extends BaseSchema<String> {
-    /**
-     * Поле содержит подстроку.
-     */
-    private String sub = null;
-    /**
-     * Поле содержит минимальную длину строки.
-     */
-    private Integer minLength = null;
 
     /**
      * Метод добавляет проверку на пустоту и null в переданной строке.
      * @return возвращает настроенную схему валидации
      */
-    @Override
     public StringSchema required() {
-        super.required();
+        addRule("required", s -> s != null && !s.isEmpty());
         return this;
     }
 
@@ -26,7 +17,7 @@ public class StringSchema extends BaseSchema<String> {
      * @return возвращает настроенную схему валидации
      */
     public StringSchema minLength(final int length) {
-        minLength = length;
+        addRule("minLength", s -> s != null && s.length() >= length);
         return this;
     }
 
@@ -37,29 +28,7 @@ public class StringSchema extends BaseSchema<String> {
      * @return возвращает настроенную схему валидации
      */
     public StringSchema contains(final String substring) {
-        sub = substring;
+        addRule("contains", s -> s != null && s.contains(substring));
         return this;
-    }
-
-    /**
-     * Метод проверяет валидность переданных данных.
-     * @param data передаваемые методу данные
-     * @return возвращает, пройдена или нет проверка
-     */
-    @Override
-    public boolean isValidNotNull(final String data) {
-        if (data.isEmpty()) {
-            if (super.getRequired()) {
-                return false;
-            }
-            return true;
-        }
-        if (minLength != null && data.length() < minLength) {
-            return false;
-        }
-        if (sub != null && !data.contains(sub)) {
-            return false;
-        }
-        return true;
     }
 }

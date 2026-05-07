@@ -1,59 +1,52 @@
 package hexlet.code.schemas;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+
 public abstract class BaseSchema<T> {
+    /**
+     * Поле содержит карту параметров валидации.
+     */
+    private Map<String, Predicate<T>> rules = new LinkedHashMap<>();
 
     /**
-     * Поле для проверки данных на пустоту и null.
+     * Метод для добавления параметра валидации.
+     * @param name - String, имя параметра
+     * @param rule - Predicate<T>, функция валидации
      */
-    private boolean required = false;
-
-    /**
-     * Метод для установки обязательности ввода.
-     * @return возвращает объект класса-схемы
-     */
-    public BaseSchema<T> required() {
-        required = true;
-        return this;
+    public final void addRule(final String name, final Predicate<T> rule) {
+        rules.put(name, rule);
     }
 
     /**
      * Метод для проверки на пустоту и null в переданном параметре.
-     * @param data - данные для валидации
+     * @param data - содержит проверяемые данные
      * @return возвращает результат проверки
      */
-    public boolean isValid(final T data) {
-        if (!required && data == null) {
-            return true;
+    public final boolean isValid(final T data) {
+        if (data == null) {
+            return !rules.containsKey("required");
         }
-        if (required && data == null) {
-            return false;
-        }
-        boolean r = isValidNotNull(data);
-        return r;
+        return rules.
+                values().
+                stream().
+                allMatch(predicate -> predicate.test(data));
+
     }
 
     /**
-     * Метод проверяет валидность значения произвольного типа.
-     * @param data содержит объект проверки
-     * @return возвращает, прошел ли объект проверку
+     * Проверяет валидность значения произвольного типа.
+     * @param value значение для проверки
+     * @return возвращает результат валидации
      */
-    public boolean isValidData(final Object data) {
+    protected boolean isValidObject(final Object value) {
         try {
             @SuppressWarnings("unchecked")
-            T casted = (T) data;
+            T casted = (T) value;
             return isValid(casted);
         } catch (ClassCastException e) {
             return false;
         }
     }
-
-    /**
-     * Геттер для получения доступа к полю.
-     * @return возвращает значение поля
-     */
-    public boolean getRequired() {
-        return required;
-    }
-
-    protected abstract boolean isValidNotNull(T data);
 }
