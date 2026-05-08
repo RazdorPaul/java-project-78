@@ -4,11 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MapSchema extends BaseSchema<Map<String, Object>> {
-
-    /**
-     * Содержит карту правил валидации вложенных объектов.
-     */
-    private Map<String, BaseSchema<?>> shapeSchemas = null;
     /**
      * Метод добавляет проверку на пустоту и null в переданных данных.
      * @return возвращает настроенную схему валидации
@@ -33,8 +28,9 @@ public class MapSchema extends BaseSchema<Map<String, Object>> {
      * @param rules содержит карту правил валидации
      * @return возвращает настроенную схему валидации
      */
+    @SuppressWarnings("unchecked")
     public MapSchema shape(final Map<String, ? extends BaseSchema<?>> rules) {
-        this.shapeSchemas = (Map<String, BaseSchema<?>>) rules;
+        var shapeSchemas = (Map<String, BaseSchema<?>>) rules;
         addRule("shape", map -> {
             if (map == null) {
                 return true;
@@ -54,11 +50,12 @@ public class MapSchema extends BaseSchema<Map<String, Object>> {
 
     /**
      * Проверяет валидность карты, принимая любой тип карты.
-     * Этот метод необходим для совместимости с тестами,
+     * Этот метод необходим для совместимости с вызовами,
      * передающими Map<String, String>.
      * @param map карта для проверки (может быть null)
      * @return true, если карта проходит все проверки схемы, иначе false
      */
+    //@Override
     @SuppressWarnings("unchecked")
     public boolean isValid(final Map<?, ?> map) {
         if (map == null) {
