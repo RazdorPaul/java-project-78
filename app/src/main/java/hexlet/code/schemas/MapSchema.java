@@ -56,11 +56,11 @@ public class MapSchema extends BaseSchema<Map<String, Object>> {
      * @return true, если карта проходит все проверки схемы, иначе false
      */
     //@Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "squid:S2177"})
     public boolean isValid(final Map<?, ?> map) {
         if (map == null) {
-            return isValid((Map<String, Object>) null);
+            return super.isValid(null);
         }
-        return isValid((Map<String, Object>) map);
+        return super.isValid((Map<String, Object>) map);
     }
 }
